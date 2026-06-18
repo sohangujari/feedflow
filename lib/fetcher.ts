@@ -44,7 +44,7 @@ function extractImageFromItem(item: Record<string, unknown>): string | null {
     return enclosure.url;
   }
 
-  // content:encoded — look for first <img src>
+  // content:encoded - look for first <img src>
   const content = (item["content:encoded"] ?? item["content"]) as string | undefined;
   if (content) {
     const match = content.match(/<img[^>]+src=["']([^"']+)["']/i);
@@ -102,7 +102,7 @@ export async function fetchFeed(
     for (const item of feed.items.slice(0, 20)) {
       if (!item.title || !item.link) continue;
 
-      // Clean description — strip HTML tags
+      // Clean description - strip HTML tags
       const rawDescription =
         item.contentSnippet ?? item.summary ?? item.content ?? null;
       const description = rawDescription
@@ -110,7 +110,7 @@ export async function fetchFeed(
         : null;
 
       // Get image
-      let image = extractImageFromItem(item as Record<string, unknown>);
+      let image = extractImageFromItem(item as unknown as Record<string, unknown>);
 
       // Fallback to og:image scraping (only if enabled and no image found)
       if (!image && options.scrapeImages && item.link) {
@@ -119,7 +119,7 @@ export async function fetchFeed(
 
       // Parse published date
       const publishedAt =
-        item.pubDate ?? item.isoDate ?? item.date?.toString() ?? null;
+        item.pubDate ?? item.isoDate ?? (item as any).date?.toString() ?? null;
 
       articles.push({
         title: item.title.trim(),

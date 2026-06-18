@@ -7,12 +7,12 @@ export const dynamic = "force-dynamic";
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const rateLimit = await checkRateLimit(req);
   if (rateLimit.errorResponse) return rateLimit.errorResponse;
 
-  const { id } = params;
+  const { id } = await params;
 
   if (!id) {
     return withRateLimitHeaders(

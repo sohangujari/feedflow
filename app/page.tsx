@@ -47,7 +47,7 @@ const endpoints = [
 ];
 
 const params = [
-  { name: "country", type: "string", desc: "ISO code — IN, US, GB, AU, CA, SG" },
+  { name: "country", type: "string", desc: "ISO code - IN, US, GB, AU, CA, SG" },
   { name: "category", type: "string", desc: "general, technology, business, sports, health, science, entertainment" },
   { name: "q", type: "string", desc: "Full-text keyword search" },
   { name: "source", type: "string", desc: "Source ID e.g. ndtv-general, bbc-general" },
@@ -465,7 +465,7 @@ export default function Home() {
         color: "#333",
         fontSize: "13px",
       }}>
-        <span>FeedFlow — MIT License · Built with ❤️‍🔥</span>
+        <span>FeedFlow - MIT License · Built with ❤️‍🔥</span>
       </footer>
     </div>
   );

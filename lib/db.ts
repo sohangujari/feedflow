@@ -41,13 +41,19 @@ export async function queryArticles(params: NewsQueryParams): Promise<{
 
   // Filters
   if (params.country) {
-    query = query.eq("country", params.country.toUpperCase());
+    const countries = params.country.split(",").map(c => c.trim().toUpperCase());
+    if (countries.length === 1) query = query.eq("country", countries[0]);
+    else query = query.in("country", countries);
   }
   if (params.category) {
-    query = query.eq("category", params.category.toLowerCase());
+    const categories = params.category.split(",").map(c => c.trim().toLowerCase());
+    if (categories.length === 1) query = query.eq("category", categories[0]);
+    else query = query.in("category", categories);
   }
   if (params.source) {
-    query = query.eq("source_id", params.source.toLowerCase());
+    const sources = params.source.split(",").map(s => s.trim().toLowerCase());
+    if (sources.length === 1) query = query.eq("source_id", sources[0]);
+    else query = query.in("source_id", sources);
   }
   if (params.language) {
     query = query.eq("language", params.language.toLowerCase());
@@ -147,13 +153,27 @@ export async function pruneOldArticles(retentionDays = 7): Promise<number> {
 /**
  * Get all active sources from DB
  */
-export async function getSources() {
-  const { data, error } = await supabase
+export async function getSources(params?: { country?: string; category?: string }) {
+  let query = supabase
     .from("sources")
     .select("*")
-    .eq("active", true)
-    .order("country");
+    .eq("active", true);
 
+  if (params?.country) {
+    const countries = params.country.split(",").map(c => c.trim().toUpperCase());
+    if (countries.length === 1) query = query.eq("country", countries[0]);
+    else query = query.in("country", countries);
+  }
+
+  if (params?.category) {
+    const categories = params.category.split(",").map(c => c.trim().toLowerCase());
+    if (categories.length === 1) query = query.eq("category", categories[0]);
+    else query = query.in("category", categories);
+  }
+
+  query = query.order("country");
+
+  const { data, error } = await query;
   if (error) throw new Error(error.message);
   return data ?? [];
 }

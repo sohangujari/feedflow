@@ -1,5 +1,5 @@
 -- ============================================================
--- FeedFlow — Supabase Schema
+-- FeedFlow - Supabase Schema
 -- Run this in Supabase SQL Editor
 -- ============================================================
 
@@ -136,7 +136,7 @@ SELECT cron.schedule(
   $$
 );
 
--- Prune articles older than 7 days — runs daily at 2am UTC
+-- Prune articles older than 7 days - runs daily at 2am UTC
 SELECT cron.schedule(
   'prune-old-articles-daily',
   '0 2 * * *',

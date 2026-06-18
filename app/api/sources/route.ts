@@ -10,7 +10,11 @@ export async function GET(req: NextRequest) {
   if (rateLimit.errorResponse) return rateLimit.errorResponse;
 
   try {
-    const sources = await getSources();
+    const { searchParams } = req.nextUrl;
+    const country = searchParams.get("country") ?? undefined;
+    const category = searchParams.get("category") ?? undefined;
+    
+    const sources = await getSources({ country, category });
 
     const response: SourcesResponse = {
       status: "ok",

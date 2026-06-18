@@ -1,19 +1,119 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
-const COUNTRIES = ["All", "IN", "US", "GB", "AU", "CA", "SG"];
-const CATEGORIES = ["All", "general", "technology", "business", "sports", "health", "science", "entertainment"];
+function MultiSelect({
+  label,
+  options,
+  value,
+  onChange,
+  placeholder
+}: {
+  label: string;
+  options: { value: string; label: string }[];
+  value: string;
+  onChange: (v: string) => void;
+  placeholder: string;
+}) {
+  const [open, setOpen] = useState(false);
+  const selectedArray = value ? value.split(',') : [];
+
+  const toggle = (val: string) => {
+    if (val === "") {
+      onChange("");
+      setOpen(false);
+      return;
+    }
+    let newArr = [...selectedArray];
+    if (newArr.includes(val)) {
+      newArr = newArr.filter(v => v !== val);
+    } else {
+      newArr.push(val);
+    }
+    onChange(newArr.join(','));
+  };
+
+  const displayText = selectedArray.length === 0 
+    ? placeholder 
+    : selectedArray.length === 1 
+      ? (options.find(o => o.value === selectedArray[0])?.label || selectedArray[0])
+      : `${selectedArray.length} selected`;
+
+  return (
+    <div style={{ position: 'relative', marginBottom: '20px' }}>
+      <label className="pg-label">{label}</label>
+      <div 
+        className="pg-select" 
+        style={{ cursor: 'pointer', marginBottom: 0, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }} 
+        onClick={() => setOpen(!open)}
+      >
+        <span style={{ color: selectedArray.length === 0 ? '#888' : '#e8e8e8' }}>{displayText}</span>
+        <span style={{ fontSize: '10px' }}>▼</span>
+      </div>
+      {open && (
+        <>
+          <div style={{ position: 'fixed', inset: 0, zIndex: 9 }} onClick={() => setOpen(false)} />
+          <div style={{
+            position: 'absolute', top: '100%', left: 0, right: 0, 
+            background: '#111', border: '1px solid #222', borderRadius: '6px', 
+            marginTop: '4px', zIndex: 10, maxHeight: '200px', overflowY: 'auto',
+            boxShadow: '0 10px 20px rgba(0,0,0,0.5)'
+          }}>
+            <div 
+              style={{ padding: '8px 14px', cursor: 'pointer', borderBottom: '1px solid #222', color: selectedArray.length === 0 ? '#63ffb4' : '#e8e8e8' }}
+              onClick={() => toggle("")}
+            >
+              Any (All)
+            </div>
+            {options.map(o => (
+              <div 
+                key={o.value} 
+                style={{ padding: '8px 14px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}
+                onClick={() => toggle(o.value)}
+              >
+                <input type="checkbox" checked={selectedArray.includes(o.value)} readOnly style={{ cursor: 'pointer' }} />
+                <span style={{ color: selectedArray.includes(o.value) ? '#63ffb4' : '#e8e8e8' }}>{o.label}</span>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
 
 export default function ApiPlayground() {
   const [endpoint, setEndpoint] = useState("/api/news");
-  const [country, setCountry] = useState("All");
-  const [category, setCategory] = useState("All");
+  const [country, setCountry] = useState("");
+  const [category, setCategory] = useState("");
+  const [source, setSource] = useState("");
   const [q, setQ] = useState("");
   const [articleId, setArticleId] = useState("");
   const [response, setResponse] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [copied, setCopied] = useState(false);
+
+  const [dynamicCountries, setDynamicCountries] = useState<any[]>([]);
+  const [dynamicCategories, setDynamicCategories] = useState<any[]>([]);
+  const [dynamicSources, setDynamicSources] = useState<any[]>([]);
+
+  useEffect(() => {
+    const fetchOptions = async () => {
+      try {
+        const [cRes, catRes, sRes] = await Promise.all([
+          fetch("/api/countries").then(r => r.json()),
+          fetch("/api/categories").then(r => r.json()),
+          fetch("/api/sources").then(r => r.json())
+        ]);
+        if (cRes.countries) setDynamicCountries(cRes.countries);
+        if (catRes.categories) setDynamicCategories(catRes.categories);
+        if (sRes.sources) setDynamicSources(sRes.sources);
+      } catch (err) {
+        console.error("Failed to load dynamic options", err);
+      }
+    };
+    fetchOptions();
+  }, []);
 
   // Generate URL based on state
   const getUrl = () => {
@@ -25,9 +125,13 @@ export default function ApiPlayground() {
     
     url += endpoint;
     const params = new URLSearchParams();
-    if (country !== "All") params.append("country", country);
-    if (category !== "All") params.append("category", category);
-    if (q) params.append("q", q);
+    if (country) params.append("country", country);
+    if (category) params.append("category", category);
+    
+    if (endpoint === "/api/news") {
+      if (source) params.append("source", source);
+      if (q) params.append("q", q);
+    }
     
     const qs = params.toString();
     if (qs) url += `?${qs}`;
@@ -173,12 +277,6 @@ export default function ApiPlayground() {
             max-height: 400px;
             overflow-y: auto;
          }
-         /* Syntax highlighting for JSON */
-         .json-key { color: #a8e6cf; }
-         .json-string { color: #ffa563; }
-         .json-number { color: #82aaff; }
-         .json-boolean { color: #c792ea; }
-         .json-null { color: #ff5370; }
       `}</style>
 
       <div className="pg-left">
@@ -186,6 +284,10 @@ export default function ApiPlayground() {
         <select className="pg-select" value={endpoint} onChange={e => {
           setEndpoint(e.target.value);
           setResponse(null);
+          setCountry("");
+          setCategory("");
+          setSource("");
+          setQ("");
         }}>
           <option value="/api/news">GET /api/news</option>
           <option value="/api/news/:id">GET /api/news/:id</option>
@@ -194,17 +296,35 @@ export default function ApiPlayground() {
           <option value="/api/sources">GET /api/sources</option>
         </select>
 
+        {(endpoint === "/api/news" || endpoint === "/api/sources" || endpoint === "/api/categories" || endpoint === "/api/countries") && (
+          <>
+            <MultiSelect
+              label="Country (comma-separated for multiple)"
+              placeholder="e.g. US, IN (Leave blank for all)"
+              value={country}
+              onChange={setCountry}
+              options={dynamicCountries.map(c => ({ value: c.code, label: c.name }))}
+            />
+
+            <MultiSelect
+              label="Category (comma-separated for multiple)"
+              placeholder="e.g. technology, science (Leave blank for all)"
+              value={category}
+              onChange={setCategory}
+              options={dynamicCategories.map(c => ({ value: c.id, label: c.name }))}
+            />
+          </>
+        )}
+
         {endpoint === "/api/news" && (
           <>
-            <label className="pg-label">Country</label>
-            <select className="pg-select" value={country} onChange={e => setCountry(e.target.value)}>
-              {COUNTRIES.map(c => <option key={c} value={c}>{c === "All" ? "Any (All)" : c}</option>)}
-            </select>
-
-            <label className="pg-label">Category</label>
-            <select className="pg-select" value={category} onChange={e => setCategory(e.target.value)}>
-              {CATEGORIES.map(c => <option key={c} value={c}>{c === "All" ? "Any (All)" : c}</option>)}
-            </select>
+            <MultiSelect
+              label="Source (comma-separated for multiple)"
+              placeholder="e.g. ndtv-general, techcrunch-tech (Leave blank for all)"
+              value={source}
+              onChange={setSource}
+              options={dynamicSources.map(s => ({ value: s.id, label: s.name }))}
+            />
 
             <label className="pg-label">Search Query (q)</label>
             <input 
