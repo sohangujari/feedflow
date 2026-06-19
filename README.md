@@ -9,7 +9,7 @@ A free, open-source real-time news API built on **Next.js + Supabase + Vercel**.
 - 🌍 **Country & category filtering**
 - 🔍 **Full-text search** via PostgreSQL `tsvector`
 - 🛡️ **IP-based rate limiting** (100 req/15min)
-- ⏰ **Auto-refresh** every 15 minutes via Supabase `pg_cron`
+- ⏰ **Auto-refresh** every 30 minutes via Supabase `pg_cron`
 - 🗑️ **Auto-prune** articles older than 7 days
 - 💸 **Truly free** on Vercel + Supabase free tiers
 
@@ -88,8 +88,8 @@ In `supabase/schema.sql`, near the bottom, update the cron jobs with your actual
 
 ```sql
 SELECT cron.schedule(
-  'fetch-news-every-15min',
-  '*/15 * * * *',
+  'fetch-news-every-30min',
+  '*/30 * * * *',
   $$
     SELECT net.http_post(
       url := 'https://YOUR_VERCEL_URL/api/cron',   -- ← your Vercel URL
@@ -173,7 +173,7 @@ vercel --prod
 Go back to Supabase SQL Editor and update the cron jobs with your Vercel production URL:
 
 ```sql
-SELECT cron.unschedule('fetch-news-every-15min');
+SELECT cron.unschedule('fetch-news-every-30min');
 SELECT cron.unschedule('prune-old-articles-daily');
 
 -- Re-run the cron schedule SQL from schema.sql with your real URL
@@ -236,7 +236,7 @@ VALUES ('reuters-general', 'Reuters', 'https://feeds.reuters.com/reuters/topNews
 | Supabase pg_cron | Included                              | ✅                 |
 | Rate limit       | 100 req/15min per IP                  | In-memory          |
 
-> ⚠️ **Supabase Inactivity Warning**: Supabase pauses free projects after 7 days of inactivity. Since pg_cron runs every 15 minutes, this won't be an issue as long as the cron job is active.
+> ⚠️ **Supabase Inactivity Warning**: Supabase pauses free projects after 7 days of inactivity. Since pg_cron runs every 30 minutes, this won't be an issue as long as the cron job is active.
 
 ---
 

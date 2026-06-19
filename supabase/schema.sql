@@ -123,10 +123,10 @@ ON CONFLICT (source_id) DO NOTHING;
 -- These call your Vercel API endpoints on a schedule.
 -- Replace YOUR_VERCEL_URL and YOUR_CRON_SECRET with actual values.
 
--- Fetch news every 15 minutes
+-- Fetch news every 30 minutes
 SELECT cron.schedule(
-  'fetch-news-every-15min',
-  '*/15 * * * *',
+  'fetch-news-every-30min',
+  '*/30 * * * *',
   $$
     SELECT net.http_post(
       url := 'https://YOUR_VERCEL_URL/api/cron',
