@@ -75,7 +75,7 @@ export async function queryArticles(params: NewsQueryParams): Promise<{
 
   // Sorting
   const sortBy = params.sortBy === "relevancy" && params.q ? "created_at" : "published_at";
-  query = query.order(sortBy, { ascending: false });
+  query = query.order(sortBy, { ascending: false, nullsFirst: false }).order("created_at", { ascending: false });
 
   // Pagination
   query = query.range(offset, offset + pageSize - 1);

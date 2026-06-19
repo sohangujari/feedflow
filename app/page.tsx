@@ -253,8 +253,8 @@ export default function Home() {
           marginBottom: "40px",
           fontFamily: "'Space Grotesk', sans-serif",
         }}>
-          An open-source news API aggregating 25+ RSS sources across 6 countries.
-          Filter by category, country, or keyword. Refreshed every 15 minutes.
+          An open-source news API aggregating 40+ RSS sources across 6 countries.
+          Filter by category, country, or keyword. Refreshed every 30 minutes.
         </p>
 
         {/* CTA */}
@@ -304,10 +304,10 @@ export default function Home() {
           overflow: "hidden",
         }}>
           {[
-            { value: "25+", label: "RSS Sources" },
+            { value: "40+", label: "RSS Sources" },
             { value: "6", label: "Countries" },
             { value: "7", label: "Categories" },
-            { value: "15min", label: "Refresh Rate" },
+            { value: "30min", label: "Refresh Rate" },
           ].map((stat) => (
             <div key={stat.label} style={{
               padding: "24px",

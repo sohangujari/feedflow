@@ -1,10 +1,10 @@
 # FeedFlow
 
-A free, open-source real-time news API built on **Next.js + Supabase + Vercel**. Aggregates 25+ RSS sources across 6 countries with full-text search, category/country filtering, thumbnail images, and API key rate limiting.
+A free, open-source real-time news API built on **Next.js + Supabase + Vercel**. Aggregates 40+ RSS sources across 6 countries with full-text search, category/country filtering, thumbnail images, and API key rate limiting.
 
 ## Features
 
-- 📰 **25 RSS sources** - India, USA, UK, Australia, Canada, Singapore
+- 📰 **40 RSS sources** - India, USA, UK, Australia, Canada, Singapore
 - 🖼️ **Images & thumbnails** - Extracted from RSS feeds + `og:image` scraping fallback
 - 🌍 **Country & category filtering**
 - 🔍 **Full-text search** via PostgreSQL `tsvector`
@@ -72,7 +72,7 @@ npm install
 2. Once created, go to **SQL Editor** and run the full contents of `supabase/schema.sql`
 3. This creates:
    - `articles` table with full-text search index
-   - `sources` table (pre-seeded with 25 sources)
+   - `sources` table (pre-seeded with 40 sources)
 
    - `pg_cron` jobs for auto-fetching and pruning
 
