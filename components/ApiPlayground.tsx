@@ -290,13 +290,14 @@ export default function ApiPlayground() {
           setQ("");
         }}>
           <option value="/api/news">GET /api/news</option>
+          <option value="/api/news/latest">GET /api/news/latest</option>
           <option value="/api/news/:id">GET /api/news/:id</option>
           <option value="/api/categories">GET /api/categories</option>
           <option value="/api/countries">GET /api/countries</option>
           <option value="/api/sources">GET /api/sources</option>
         </select>
 
-        {(endpoint === "/api/news" || endpoint === "/api/sources" || endpoint === "/api/categories" || endpoint === "/api/countries") && (
+        {(endpoint === "/api/news" || endpoint === "/api/news/latest" || endpoint === "/api/sources" || endpoint === "/api/categories" || endpoint === "/api/countries") && (
           <>
             <MultiSelect
               label="Country (comma-separated for multiple)"
@@ -316,7 +317,7 @@ export default function ApiPlayground() {
           </>
         )}
 
-        {endpoint === "/api/news" && (
+        {(endpoint === "/api/news" || endpoint === "/api/news/latest") && (
           <>
             <MultiSelect
               label="Source (comma-separated for multiple)"
